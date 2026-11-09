@@ -174,4 +174,24 @@ describe('Feed Component - Fullscreen Snap & Interactivity', () => {
 
     vi.useRealTimers();
   });
+
+  it('renders corner PiP thumbnail with compact BeReal w-24 h-32 dimensions', () => {
+    render(
+      <Feed
+        workouts={mockWorkouts}
+        currentUser={mockCurrentUser}
+        onToggleReaction={vi.fn()}
+        onAddComment={vi.fn()}
+        onAddAudioComment={vi.fn()}
+        onSelectUser={vi.fn()}
+        onOpenAddModal={vi.fn()}
+        onVisibleAuthorChange={vi.fn()}
+      />
+    );
+
+    const pipButton = screen.getByTitle('Kliknij, aby zamienić kamery miejscami');
+    expect(pipButton).toBeInTheDocument();
+    expect(pipButton.className).toContain('w-24');
+    expect(pipButton.className).toContain('h-32');
+  });
 });

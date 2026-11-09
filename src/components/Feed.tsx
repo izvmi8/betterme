@@ -369,19 +369,19 @@ export const Feed: React.FC<FeedProps> = ({
                   loading={index < 2 ? 'eager' : 'lazy'}
                 />
 
-                {/* Drugie ujęcie w rogu kadru 3:4 (PiP) */}
+                {/* Drugie ujęcie w rogu kadru 3:4 (PiP) - oryginalny kompaktowy format BeReal 3:4 */}
                 {pipImg && (
                   <button
                     onClick={(e) => toggleSwap(w.id, e)}
                     title="Kliknij, aby zamienić kamery miejscami"
-                    className="absolute top-3.5 left-3.5 z-20 w-26 h-34 rounded-2xl overflow-hidden border-2 border-white shadow-2xl active:scale-95 transition-transform group cursor-pointer"
+                    className="absolute top-3 left-3 z-20 w-24 h-32 rounded-2xl overflow-hidden border-2 border-white/80 shadow-2xl active:scale-95 transition-transform group cursor-pointer"
                   >
                     <img
                       src={pipImg}
                       alt="Druga kamera"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity">
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[11px] font-bold transition-opacity">
                       🔄
                     </div>
                   </button>
