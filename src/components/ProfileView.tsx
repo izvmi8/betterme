@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { User, Workout } from '../types';
-import { Flame, Dumbbell, Award, ArrowLeft, LogOut, Calendar, X } from 'lucide-react';
+import { Flame, Dumbbell, Award, ArrowLeft, LogOut, Calendar, X, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
+import { EditProfileModal } from './EditProfileModal';
 
 interface ProfileViewProps {
   user: User;
@@ -12,6 +13,7 @@ interface ProfileViewProps {
   onBackToMe?: () => void;
   onOpenSwitchUser: () => void;
   onModalToggle?: (isOpen: boolean) => void;
+  onUpdateUser?: (data: { name: string; pin: string; avatar: string }) => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -21,13 +23,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onBackToMe,
   onOpenSwitchUser,
   onModalToggle,
+  onUpdateUser,
 }) => {
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
 
   // Notify parent modal state to lock screen carousel navigation
   useEffect(() => {
-    onModalToggle?.(!!selectedWorkout);
-  }, [selectedWorkout, onModalToggle]);
+    onModalToggle?.(!!selectedWorkout || isEditModalOpen);
+  }, [selectedWorkout, isEditModalOpen, onModalToggle]);
 
   const userWorkouts = workouts.filter(
     (w) => w.userId === user.id || w.taggedUserIds?.includes(user.id)
@@ -93,15 +97,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
           </div>
 
-          {/* Switch User / Logout button */}
+          {/* Profile Actions */}
           {isCurrentLoggedUser && (
-            <button
-              onClick={onOpenSwitchUser}
-              className="mt-4 flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white px-3 py-1.5 rounded-full bg-[#1b3644] border border-[#0d2b52] hover:border-[#6ea900] transition-colors"
-            >
-              <LogOut size={12} />
-              <span>Zmień profil / Przełącz konto</span>
-            </button>
+            <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                className="flex items-center gap-1.5 text-xs bg-[#6ea900] text-black font-black px-3.5 py-1.5 rounded-full shadow-md shadow-[#6ea900]/20 active:scale-95 transition-transform"
+              >
+                <Pencil size={12} strokeWidth={3} />
+                <span>Edytuj profil</span>
+              </button>
+
+              <button
+                onClick={onOpenSwitchUser}
+                className="flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white px-3.5 py-1.5 rounded-full bg-[#1b3644] border border-[#0d2b52] hover:border-[#6ea900] transition-colors"
+              >
+                <LogOut size={12} />
+                <span>Przełącz profil</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -214,6 +228,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>,
           document.body
         )}
+
+      {/* Modal Edycji Profilu */}
+      <EditProfileModal
+        user={user}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={(data) => onUpdateUser?.(data)}
+      />
     </div>
   );
 };

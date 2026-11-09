@@ -2,9 +2,9 @@ import { User, Workout, PushNotification, Comment } from '../types';
 import { INITIAL_USERS, INITIAL_WORKOUTS } from '../data/mockData';
 import { supabase, isSupabaseConfigured, uploadMedia } from './supabaseClient';
 
-const USERS_KEY = 'betterme_users_v2';
-const WORKOUTS_KEY = 'betterme_workouts_v2';
-const CURRENT_USER_ID_KEY = 'betterme_current_user_id';
+const USERS_KEY = 'beme_users_v4';
+const WORKOUTS_KEY = 'beme_workouts_v4';
+const CURRENT_USER_ID_KEY = 'beme_current_user_id';
 
 type Listener = () => void;
 type NotificationListener = (notification: PushNotification) => void;
@@ -22,12 +22,35 @@ class Store {
   }
 
   private init() {
-    if (!localStorage.getItem(USERS_KEY)) {
+    // Wyczyść ewentualne stare klucze z mockami
+    try {
+      localStorage.removeItem('betterme_users_v2');
+      localStorage.removeItem('betterme_workouts_v2');
+    } catch {}
+
+    const existingUsers = localStorage.getItem(USERS_KEY);
+    if (!existingUsers) {
       localStorage.setItem(USERS_KEY, JSON.stringify(INITIAL_USERS));
+    } else {
+      // Usuń legacy Tomek, Marek, Wiktor jeśli zostali zapisani wcześniej
+      const parsed: User[] = JSON.parse(existingUsers);
+      const cleaned = parsed.filter((u) => !['u2', 'u3', 'u4'].includes(u.id));
+      if (cleaned.length === 0) {
+        localStorage.setItem(USERS_KEY, JSON.stringify(INITIAL_USERS));
+      } else {
+        localStorage.setItem(USERS_KEY, JSON.stringify(cleaned));
+      }
     }
-    if (!localStorage.getItem(WORKOUTS_KEY)) {
+
+    const existingWorkouts = localStorage.getItem(WORKOUTS_KEY);
+    if (!existingWorkouts) {
       localStorage.setItem(WORKOUTS_KEY, JSON.stringify(INITIAL_WORKOUTS));
+    } else {
+      const parsedW: Workout[] = JSON.parse(existingWorkouts);
+      const cleanedW = parsedW.filter((w) => !['u2', 'u3', 'u4'].includes(w.userId));
+      localStorage.setItem(WORKOUTS_KEY, JSON.stringify(cleanedW));
     }
+
     if (!localStorage.getItem(CURRENT_USER_ID_KEY)) {
       localStorage.setItem(CURRENT_USER_ID_KEY, 'u1'); // Domyślnie Filip
     }
@@ -36,6 +59,14 @@ class Store {
   // Synchronizacja z Supabase (Live Backend)
   private async initSupabase() {
     if (!supabase || !isSupabaseConfigured()) return;
+
+    // Usuń z Supabase stare profile z poprzedniego seeda (Tomek, Marek, Wiktor)
+    try {
+      await supabase.from('users').delete().in('id', ['u2', 'u3', 'u4']);
+      await supabase.from('workouts').delete().in('user_id', ['u2', 'u3', 'u4']);
+    } catch (err) {
+      // Ignoruj błąd jeśli tabele lub relacje były już wyczyszczone
+    }
 
     await this.syncFromSupabase();
 
@@ -204,6 +235,112 @@ class Store {
   public setCurrentUser(userId: string): void {
     localStorage.setItem(CURRENT_USER_ID_KEY, userId);
     this.notify();
+  }
+
+  public createUser(name: string, pin: string, avatar: string): User {
+    const newUser: User = {
+      id: 'u_' + Date.now(),
+      name: name.trim(),
+      pin: pin.trim() || '1234',
+      avatar: avatar.trim(),
+      currentStreak: 0,
+      allTimeWorkouts: 0,
+      allTimeMinutes: 0,
+      longestStreak: 0,
+    };
+
+    const users = [...this.getUsers(), newUser];
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    localStorage.setItem(CURRENT_USER_ID_KEY, newUser.id);
+    this.notify();
+
+    if (supabase && isSupabaseConfigured()) {
+      (async () => {
+        try {
+          let finalAvatar = newUser.avatar;
+          if (finalAvatar.startsWith('data:')) {
+            finalAvatar = await uploadMedia(finalAvatar, `avatar_${newUser.id}.jpg`);
+          }
+          await supabase.from('users').insert({
+            id: newUser.id,
+            name: newUser.name,
+            avatar: finalAvatar,
+            pin: newUser.pin,
+            current_streak: 0,
+            all_time_workouts: 0,
+            all_time_minutes: 0,
+            longest_streak: 0,
+          });
+        } catch (err) {
+          console.error('Błąd zapisu użytkownika do Supabase:', err);
+        }
+      })();
+    }
+
+    return newUser;
+  }
+
+  public updateUser(
+    userId: string,
+    data: Partial<Pick<User, 'name' | 'pin' | 'avatar'>>
+  ): User {
+    const users = this.getUsers().map((u) => {
+      if (u.id === userId) {
+        return {
+          ...u,
+          name: data.name !== undefined && data.name.trim() !== '' ? data.name.trim() : u.name,
+          pin: data.pin !== undefined && data.pin.trim() !== '' ? data.pin.trim() : u.pin,
+          avatar: data.avatar !== undefined && data.avatar.trim() !== '' ? data.avatar : u.avatar,
+        };
+      }
+      return u;
+    });
+
+    const updatedUser = users.find((u) => u.id === userId) || this.getCurrentUser();
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+    // Zaktualizuj dane autora w jego dotychczasowych treningach
+    const workouts = this.getWorkouts().map((w) => {
+      if (w.userId === userId) {
+        return {
+          ...w,
+          userName: updatedUser.name,
+          userAvatar: updatedUser.avatar,
+        };
+      }
+      return w;
+    });
+    localStorage.setItem(WORKOUTS_KEY, JSON.stringify(workouts));
+
+    this.notify();
+
+    if (supabase && isSupabaseConfigured()) {
+      (async () => {
+        try {
+          let finalAvatar = data.avatar;
+          if (finalAvatar && finalAvatar.startsWith('data:')) {
+            finalAvatar = await uploadMedia(finalAvatar, `avatar_${userId}.jpg`);
+          }
+          const updates: any = {};
+          if (data.name !== undefined && data.name.trim() !== '') updates.name = data.name.trim();
+          if (data.pin !== undefined && data.pin.trim() !== '') updates.pin = data.pin.trim();
+          if (finalAvatar !== undefined && finalAvatar.trim() !== '') updates.avatar = finalAvatar;
+
+          await supabase.from('users').update(updates).eq('id', userId);
+
+          if (data.name || finalAvatar) {
+            const workoutUpdates: any = {};
+            if (data.name) workoutUpdates.user_name = data.name.trim();
+            if (finalAvatar) workoutUpdates.user_avatar = finalAvatar;
+            await supabase.from('workouts').update(workoutUpdates).eq('user_id', userId);
+          }
+        } catch (err) {
+          console.error('Błąd aktualizacji użytkownika w Supabase:', err);
+        }
+      })();
+    }
+
+    return updatedUser;
   }
 
   // Workouts

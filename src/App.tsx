@@ -97,6 +97,15 @@ export const App: React.FC = () => {
     store.setCurrentUser(userId);
   };
 
+  const handleCreateUser = (name: string, pin: string, avatar: string) => {
+    const newUser = store.createUser(name, pin, avatar);
+    setVisibleAuthorId(newUser.id);
+  };
+
+  const handleUpdateUser = (data: { name: string; pin: string; avatar: string }) => {
+    store.updateUser(currentUser.id, data);
+  };
+
   // Tactile swipe navigation
   const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
     if (isAnyModalOpen) return;
@@ -187,6 +196,7 @@ export const App: React.FC = () => {
             onBackToMe={() => setActiveScreen('tablica')}
             onOpenSwitchUser={() => setIsLoginModalOpen(true)}
             onModalToggle={(open) => handleChildModalToggle('profile-author', open)}
+            onUpdateUser={handleUpdateUser}
           />
         </div>
 
@@ -224,6 +234,7 @@ export const App: React.FC = () => {
             isCurrentLoggedUser={true}
             onOpenSwitchUser={() => setIsLoginModalOpen(true)}
             onModalToggle={(open) => handleChildModalToggle('profile-current', open)}
+            onUpdateUser={handleUpdateUser}
           />
         </div>
       </main>
@@ -255,6 +266,7 @@ export const App: React.FC = () => {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onSelectUser={handleSwitchUser}
+        onCreateUser={handleCreateUser}
       />
     </div>
   );

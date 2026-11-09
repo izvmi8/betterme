@@ -22,11 +22,22 @@ describe('Store Service - Core Logic & Gamification', () => {
     expect(workouts.length).toBeGreaterThan(0);
   });
 
-  it('switches current user properly', () => {
-    store.setCurrentUser('u2');
+  it('creates and switches to a new user profile', () => {
+    const newUser = store.createUser('Tomek', '1111', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150');
+    expect(newUser.id).toBeDefined();
+    expect(newUser.name).toBe('Tomek');
+
     const currentUser = store.getCurrentUser();
-    expect(currentUser.id).toBe('u2');
+    expect(currentUser.id).toBe(newUser.id);
     expect(currentUser.name).toBe('Tomek');
+  });
+
+  it('updates user profile name, avatar and PIN', () => {
+    const updated = store.updateUser('u1', { name: 'Filip Szef', pin: '9999' });
+    expect(updated.name).toBe('Filip Szef');
+    expect(updated.pin).toBe('9999');
+
+    expect(store.getUsers().find(u => u.id === 'u1')?.name).toBe('Filip Szef');
   });
 
   it('adds a workout and increments author workout count', () => {
@@ -54,7 +65,7 @@ describe('Store Service - Core Logic & Gamification', () => {
 
   it('Feature 5: credits both author AND tagged gym buddies on joint workout', () => {
     const author = store.getUsers().find((u) => u.id === 'u1')!;
-    const buddy = store.getUsers().find((u) => u.id === 'u2')!;
+    const buddy = store.createUser('Marek', '2222', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150');
 
     const authorWorkoutsBefore = author.allTimeWorkouts;
     const buddyWorkoutsBefore = buddy.allTimeWorkouts;
@@ -69,12 +80,12 @@ describe('Store Service - Core Logic & Gamification', () => {
       durationMinutes: 0,
       photoUrl: 'data:image/jpeg;base64,mockback',
       notes: 'Z Markiem na siłce',
-      taggedUserIds: ['u2'],
+      taggedUserIds: [buddy.id],
       taggedUserNames: ['Marek'],
     });
 
     const authorAfter = store.getUsers().find((u) => u.id === 'u1')!;
-    const buddyAfter = store.getUsers().find((u) => u.id === 'u2')!;
+    const buddyAfter = store.getUsers().find((u) => u.id === buddy.id)!;
 
     expect(authorAfter.allTimeWorkouts).toBe(authorWorkoutsBefore + 1);
     expect(buddyAfter.allTimeWorkouts).toBe(buddyWorkoutsBefore + 1);
@@ -130,8 +141,9 @@ describe('Store Service - Core Logic & Gamification', () => {
     const pushListener = vi.fn();
     const unsubscribe = store.subscribeNotifications(pushListener);
 
+    const tomek = store.createUser('Tomek', '1111', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150');
     store.setCurrentUser('u1'); // Filip
-    store.nudgeUser('u2'); // Tomek
+    store.nudgeUser(tomek.id); // Tomek
 
     expect(pushListener).toHaveBeenCalledTimes(1);
     const notification = pushListener.mock.calls[0][0];
