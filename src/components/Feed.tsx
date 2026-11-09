@@ -311,158 +311,145 @@ export const Feed: React.FC<FeedProps> = ({
             data-workout-id={w.id}
             data-author-id={w.userId}
             onClick={() => handleScreenClick(w.id)}
-            className="relative h-full w-full snap-start snap-always shrink-0 flex flex-col justify-center items-center px-3 pt-12 pb-16 bg-black overflow-hidden cursor-pointer"
+            className="relative h-full w-full snap-start snap-always shrink-0 flex flex-col justify-center items-center px-3 pt-14 pb-20 bg-black overflow-hidden cursor-pointer"
           >
-            {/* Ramka zdjęcia w proporcjach 3:4 */}
-            <div className="relative w-full max-w-[420px] max-h-[calc(100dvh-130px)] aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl shadow-black/90 bg-[#10222b] border border-[#0d2b52] select-none">
-              {/* Główne zdjęcie w formacie 3:4 */}
-              <img
-                src={mainImg}
-                alt={w.sportTitle}
-                className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
-                loading={index < 2 ? 'eager' : 'lazy'}
-              />
-
-              {/* Czysty kadr bez gradientów */}
-
-              {/* Drugie ujęcie w rogu kadru 3:4 (PiP) - powiększone i łatwe do kliknięcia */}
-              {pipImg && (
-                <button
-                  onClick={(e) => toggleSwap(w.id, e)}
-                  title="Kliknij, aby zamienić kamery miejscami"
-                  className="absolute top-4 left-4 z-20 w-28 h-36 rounded-2xl overflow-hidden border-2 border-white shadow-2xl active:scale-95 transition-transform group cursor-pointer"
-                >
-                  <img
-                    src={pipImg}
-                    alt="Druga kamera"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity">
-                    🔄
-                  </div>
-                </button>
-              )}
-
-              {/* Animacja ognia przy dwukliku */}
-              {showHeartAnim === w.id && (
-                <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none animate-in zoom-in-50 fade-in duration-200">
-                  <div className="w-24 h-24 rounded-full bg-[#a10b2b]/90 backdrop-blur-md flex items-center justify-center shadow-2xl shadow-[#a10b2b]">
-                    <Flame size={54} className="fill-[#ff4d6d] text-white animate-bounce" />
-                  </div>
-                </div>
-              )}
-
-              {/* Prawy pasek akcji powiększony pod kciuk (Awatar, Ogień 🔥, Komentarze 💬) */}
-              <div className="absolute right-4 bottom-4 z-20 flex flex-col items-center gap-4">
-                {/* Awatar autora z przejściem do profilu */}
+            {/* Wrapper o szerokości karty */}
+            <div className="w-full max-w-[420px] flex flex-col items-start gap-2 select-none">
+              {/* Belka autora NAD zdjęciem (dokładnie jak w prawym projekcie) */}
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/15 text-white shadow-lg pointer-events-auto">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelectUser(w.userId);
                   }}
-                  className="relative group active:scale-90 transition-transform"
+                  className="font-black text-sm text-white hover:underline flex items-center gap-1.5"
                 >
                   <img
                     src={w.userAvatar}
                     alt={w.userName}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-[#6ea900] shadow-xl"
+                    className="w-5 h-5 rounded-full object-cover border border-[#6ea900]"
                   />
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-[#6ea900] text-black text-[10px] font-black flex items-center justify-center shadow">
-                    ✓
-                  </div>
+                  <span>@{w.userName}</span>
                 </button>
 
-                {/* Reakcja ognia 🔥 */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleReaction(w.id, '🔥');
-                  }}
-                  className="flex flex-col items-center gap-1 active:scale-125 transition-transform"
-                >
-                  <div
-                    className={`w-14 h-14 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-xl ${
-                      hasFlamed
-                        ? 'bg-[#a10b2b] text-white shadow-[#a10b2b]/60 scale-105'
-                        : 'bg-[#10222b]/90 text-white hover:bg-[#152b36] border border-white/20'
-                    }`}
-                  >
-                    <Flame size={26} className={hasFlamed ? 'fill-white' : ''} />
-                  </div>
-                  <span className="text-xs font-black text-white drop-shadow-md">
-                    {flameCount > 0 ? flameCount : 'Ogień'}
+                {/* Feature 5: Oznaczony kumpel */}
+                {w.taggedUserNames && w.taggedUserNames.length > 0 && (
+                  <span className="text-xs text-[#9be819] font-black flex items-center gap-1">
+                    <span>z</span>
+                    {w.taggedUserNames.map((name, i) => {
+                      const buddyId = w.taggedUserIds?.[i];
+                      return (
+                        <button
+                          key={i}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (buddyId) onSelectUser(buddyId);
+                          }}
+                          className="underline hover:text-white transition-colors"
+                        >
+                          @{name}
+                        </button>
+                      );
+                    })}
                   </span>
-                </button>
+                )}
 
-                {/* Przycisk czatu / komentarzy 💬 */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveCommentsWorkoutId(w.id);
-                  }}
-                  className="flex flex-col items-center gap-1 active:scale-125 transition-transform"
-                >
-                  <div className="w-14 h-14 rounded-full bg-[#10222b]/90 backdrop-blur-md flex items-center justify-center text-white hover:bg-[#152b36] border border-white/20 shadow-xl">
-                    <MessageSquare size={24} />
-                  </div>
-                  <span className="text-xs font-black text-white drop-shadow-md">
-                    {commentsCount > 0 ? commentsCount : 'Czat'}
-                  </span>
-                </button>
+                <span className="text-xs text-zinc-400">
+                  • {getTimeAgo(w.createdAt)}
+                </span>
               </div>
 
-              {/* Informacje o treningu w czytelnej ciemnej płytce bez gradientów */}
-              <div className="absolute bottom-4 left-4 right-22 z-20 p-3.5 rounded-2xl bg-black/70 backdrop-blur-md border border-white/10 space-y-1 pointer-events-auto shadow-2xl">
-                {/* Autor + Oznaczony kumpel + Czas */}
-                <div className="flex items-center gap-2 flex-wrap">
+              {/* Ramka zdjęcia w proporcjach 3:4 */}
+              <div className="relative w-full max-h-[calc(100dvh-185px)] aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl shadow-black/90 bg-[#10222b] border border-[#0d2b52]">
+                {/* Główne zdjęcie w formacie 3:4 */}
+                <img
+                  src={mainImg}
+                  alt={w.sportTitle}
+                  className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+                  loading={index < 2 ? 'eager' : 'lazy'}
+                />
+
+                {/* Drugie ujęcie w rogu kadru 3:4 (PiP) */}
+                {pipImg && (
+                  <button
+                    onClick={(e) => toggleSwap(w.id, e)}
+                    title="Kliknij, aby zamienić kamery miejscami"
+                    className="absolute top-3.5 left-3.5 z-20 w-26 h-34 rounded-2xl overflow-hidden border-2 border-white shadow-2xl active:scale-95 transition-transform group cursor-pointer"
+                  >
+                    <img
+                      src={pipImg}
+                      alt="Druga kamera"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity">
+                      🔄
+                    </div>
+                  </button>
+                )}
+
+                {/* Animacja ognia przy dwukliku */}
+                {showHeartAnim === w.id && (
+                  <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none animate-in zoom-in-50 fade-in duration-200">
+                    <div className="w-24 h-24 rounded-full bg-[#a10b2b]/90 backdrop-blur-md flex items-center justify-center shadow-2xl shadow-[#a10b2b]">
+                      <Flame size={54} className="fill-[#ff4d6d] text-white animate-bounce" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Prawy pasek akcji: TYLKO Ogień 🔥 i Komentarze 💬 (brak awatara, jak w prawym projekcie) */}
+                <div className="absolute right-3.5 bottom-3.5 z-20 flex flex-col items-center gap-3.5 pointer-events-auto">
+                  {/* Reakcja ognia 🔥 */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      onSelectUser(w.userId);
+                      onToggleReaction(w.id, '🔥');
                     }}
-                    className="font-black text-lg text-white hover:underline"
+                    className="flex flex-col items-center gap-1 active:scale-125 transition-transform"
                   >
-                    @{w.userName}
+                    <div
+                      className={`w-14 h-14 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-xl ${
+                        hasFlamed
+                          ? 'bg-[#a10b2b] text-white shadow-[#a10b2b]/60 scale-105'
+                          : 'bg-[#10222b]/90 text-white hover:bg-[#152b36] border border-white/20'
+                      }`}
+                    >
+                      <Flame size={26} className={hasFlamed ? 'fill-white' : ''} />
+                    </div>
+                    <span className="text-xs font-black text-white drop-shadow-md">
+                      {flameCount > 0 ? flameCount : 'Ogień'}
+                    </span>
                   </button>
 
-                  {/* Feature 5: Oznaczony kumpel */}
-                  {w.taggedUserNames && w.taggedUserNames.length > 0 && (
-                    <span className="text-xs text-[#9be819] font-black flex items-center gap-1">
-                      <span>z</span>
-                      {w.taggedUserNames.map((name, i) => {
-                        const buddyId = w.taggedUserIds?.[i];
-                        return (
-                          <button
-                            key={i}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (buddyId) onSelectUser(buddyId);
-                            }}
-                            className="underline hover:text-white transition-colors"
-                          >
-                            @{name}
-                          </button>
-                        );
-                      })}
+                  {/* Przycisk czatu / komentarzy 💬 */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveCommentsWorkoutId(w.id);
+                    }}
+                    className="flex flex-col items-center gap-1 active:scale-125 transition-transform"
+                  >
+                    <div className="w-14 h-14 rounded-full bg-[#10222b]/90 backdrop-blur-md flex items-center justify-center text-white hover:bg-[#152b36] border border-white/20 shadow-xl">
+                      <MessageSquare size={24} />
+                    </div>
+                    <span className="text-xs font-black text-white drop-shadow-md">
+                      {commentsCount > 0 ? commentsCount : 'Czat'}
                     </span>
-                  )}
-
-                  <span className="text-xs text-zinc-300">
-                    • {getTimeAgo(w.createdAt)}
-                  </span>
+                  </button>
                 </div>
 
-                {/* Tytuł zdjęcia / sport */}
-                <div className="text-sm font-bold text-white">
-                  {w.sportTitle}
+                {/* Tytuł i opis na dole wycentrowane w czystym pasku (dokładnie jak w prawym projekcie) */}
+                <div className="absolute bottom-4 inset-x-4 z-20 flex justify-center pointer-events-none">
+                  <div className="p-2.5 px-4 rounded-xl bg-black/75 backdrop-blur-md border border-white/10 shadow-2xl text-center max-w-[75%] pointer-events-auto">
+                    <div className="text-sm font-black text-white leading-tight">
+                      {w.sportTitle}
+                    </div>
+                    {w.notes && (
+                      <div className="text-xs text-zinc-300 leading-snug mt-0.5 font-normal line-clamp-2">
+                        {w.notes}
+                      </div>
+                    )}
+                  </div>
                 </div>
-
-                {/* Opcjonalny opis */}
-                {w.notes && (
-                  <p className="text-xs text-zinc-200 leading-snug line-clamp-2 font-normal">
-                    {w.notes}
-                  </p>
-                )}
               </div>
             </div>
           </div>
