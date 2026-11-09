@@ -87,7 +87,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
     const worst = shameUsers[shameUsers.length - 1] || shameUsers[0];
 
     const reportLines = [
-      '🚨 MELDUNEK HAŃBY BETTERME 🚨',
+      '🚨 MELDUNEK HAŃBY BeMe 🚨',
       '📅 Cel: min. 3 treningi do niedzieli 23:59',
       '',
       worst
@@ -390,7 +390,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
           <div className="bg-[#152b36] border border-[#0d2b52] rounded-2xl p-4 flex items-center justify-between text-xs shadow-md">
             <div>
               <span className="font-bold text-white text-sm">Historia Grupy</span>
-              <p className="text-zinc-300">Wszystkie zaliczone treningi od założenia betterme.</p>
+              <p className="text-zinc-300">Wszystkie zaliczone treningi od założenia BeMe.</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-[#6ea900]/15 border border-[#6ea900]/40 flex items-center justify-center text-[#6ea900] font-black text-lg">
               ∞
@@ -654,7 +654,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   <div className="text-4xl animate-pulse">🚀</div>
                   <div>
                     <span className="text-[11px] font-black uppercase tracking-widest text-[#9be819]">
-                      Podsumowanie Ekipy betterme
+                      Podsumowanie Ekipy BeMe
                     </span>
                     <h3 className="text-2xl font-black text-white mt-1">WSPÓLNY WYNIK 🔥</h3>
                   </div>

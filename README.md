@@ -1,4 +1,4 @@
-# 🏋️‍♂️ BETTERME - BeReal dla Twojej Ekipy Treningowej
+# 🏋️‍♂️ BeMe - BeReal dla Twojej Ekipy Treningowej
 
 Aplikacja motywacyjna dla paczki znajomych łącząca mechanikę BeReal (podwójny aparat w 3:4, jednoczesne selfie i ujęcie treningu) z elementami grywalizacji (passa 3/3 w tygodniu, Karta Hańby, Spotify Wrapped ekipy).
 

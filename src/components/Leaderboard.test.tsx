@@ -168,7 +168,7 @@ describe('Leaderboard Component - Accountability & Gamification', () => {
 
     expect(navigator.clipboard.writeText).toHaveBeenCalled();
     const copiedText = (navigator.clipboard.writeText as any).mock.calls[0][0];
-    expect(copiedText).toContain('MELDUNEK HAŃBY BETTERME');
+    expect(copiedText).toContain('MELDUNEK HAŃBY BeMe');
     expect(copiedText).toContain('DZIAD TYGODNIA');
     expect(copiedText).toContain('KARA');
 

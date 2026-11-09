@@ -64,7 +64,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
 
           <h2 className="text-xl font-black text-white mt-3">{user.name}</h2>
-          <span className="text-xs text-zinc-300">Członek ekipy betterme</span>
+          <span className="text-xs text-zinc-300">Członek ekipy BeMe</span>
 
           {/* Quick stats pills (Treningi, Aktualna Passa, Rekord) */}
           <div className="grid grid-cols-3 gap-2 w-full mt-5">

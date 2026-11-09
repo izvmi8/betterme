@@ -15,13 +15,13 @@ const mockUser: User = {
 };
 
 describe('Header Component', () => {
-  it('renders betterme logo and current streak badge', () => {
+  it('renders BeMe logo and current streak badge', () => {
     render(
       <Header currentUser={mockUser} thisWeekCount={1} onOpenSwitchUser={vi.fn()} />
     );
 
-    expect(screen.getByText('better')).toBeInTheDocument();
-    expect(screen.getByText('me')).toBeInTheDocument();
+    expect(screen.getByText('Be')).toBeInTheDocument();
+    expect(screen.getByText('Me')).toBeInTheDocument();
     expect(screen.getByText('4w')).toBeInTheDocument();
   });
 

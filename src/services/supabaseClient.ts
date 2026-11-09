@@ -45,19 +45,23 @@ export async function uploadMedia(
     let fileBody: Blob;
 
     if (typeof dataOrUrl === 'string') {
-      if (dataOrUrl.startsWith('data:')) {
-        // Convert base64 Data URL to Blob
-        const [header, base64Data] = dataOrUrl.split(',');
-        const mimeMatch = header.match(/:(.*?);/);
-        const mime = mimeMatch ? mimeMatch[1] : contentType;
-        const binary = atob(base64Data);
-        const array = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-          array[i] = binary.charCodeAt(i);
+      if (dataOrUrl.startsWith('data:') && dataOrUrl.includes(',')) {
+        try {
+          // Convert base64 Data URL to Blob
+          const [header, base64Data] = dataOrUrl.split(',');
+          const mimeMatch = header.match(/:(.*?);/);
+          const mime = mimeMatch ? mimeMatch[1] : contentType;
+          const binary = atob(base64Data);
+          const array = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            array[i] = binary.charCodeAt(i);
+          }
+          fileBody = new Blob([array], { type: mime });
+        } catch {
+          return dataOrUrl;
         }
-        fileBody = new Blob([array], { type: mime });
       } else {
-        // Already a remote URL
+        // Already a remote URL or non-base64 string
         return dataOrUrl;
       }
     } else {

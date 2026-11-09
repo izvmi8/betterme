@@ -47,7 +47,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
         <div className="flex-1 min-w-0 pr-1">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-              betterme • {notification.time}
+              BeMe • {notification.time}
             </span>
             <button
               onClick={onClose}

@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* 1. W lewym górnym rogu: logo apki */}
         <div className="flex items-center gap-1.5">
           <span className="font-black text-xl tracking-tighter text-white drop-shadow-md select-none">
-            better<span className="text-[#6ea900]">me</span>
+            Be<span className="text-[#6ea900]">Me</span>
           </span>
         </div>
 

@@ -263,7 +263,7 @@ export const AddWorkoutModal: React.FC<AddWorkoutModalProps> = ({
           cx.fillStyle = '#6ea900';
           cx.font = 'bold 44px sans-serif';
           cx.textAlign = 'center';
-          cx.fillText('BETTERME WORKOUT SNAP 📸', 540, 720);
+          cx.fillText('BeMe WORKOUT SNAP 📸', 540, 720);
         }
         return c.toDataURL('image/jpeg', 0.9);
       };
