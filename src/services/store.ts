@@ -1,10 +1,12 @@
 import { User, Workout, PushNotification, Comment } from '../types';
 import { INITIAL_USERS, INITIAL_WORKOUTS } from '../data/mockData';
 import { supabase, isSupabaseConfigured, uploadMedia } from './supabaseClient';
+import { sendSystemNotification } from './notifications';
 
 const USERS_KEY = 'beme_users_v4';
 const WORKOUTS_KEY = 'beme_workouts_v4';
 const CURRENT_USER_ID_KEY = 'beme_current_user_id';
+const OFFLINE_QUEUE_KEY = 'beme_offline_queue';
 
 type Listener = () => void;
 type NotificationListener = (notification: PushNotification) => void;
@@ -18,6 +20,11 @@ class Store {
     this.init();
     if (isSupabaseConfigured()) {
       this.initSupabase();
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', () => {
+        this.flushOfflineQueue();
+      });
     }
   }
 
@@ -218,6 +225,75 @@ class Store {
 
   public triggerPush(notification: PushNotification) {
     this.notificationListeners.forEach((l) => l(notification));
+    sendSystemNotification(notification.title, notification.body, notification.icon);
+  }
+
+  // Offline queue for gym basements with poor connectivity
+  private queueOfflineWorkout(workout: Workout): void {
+    try {
+      const existing = localStorage.getItem(OFFLINE_QUEUE_KEY);
+      const queue: Workout[] = existing ? JSON.parse(existing) : [];
+      queue.push(workout);
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+    } catch {
+      // Ignore localStorage errors
+    }
+  }
+
+  public async flushOfflineQueue(): Promise<void> {
+    if (!supabase || !isSupabaseConfigured() || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+      return;
+    }
+
+    try {
+      const existing = localStorage.getItem(OFFLINE_QUEUE_KEY);
+      if (!existing) return;
+
+      const queue: Workout[] = JSON.parse(existing);
+      if (queue.length === 0) return;
+
+      const remaining: Workout[] = [];
+
+      for (const w of queue) {
+        try {
+          let photoUrl = w.photoUrl;
+          let selfieUrl = w.selfieUrl;
+
+          if (photoUrl && photoUrl.startsWith('data:')) {
+            photoUrl = await uploadMedia(photoUrl, `main_${w.id}.jpg`);
+          }
+          if (selfieUrl && selfieUrl.startsWith('data:')) {
+            selfieUrl = await uploadMedia(selfieUrl, `selfie_${w.id}.jpg`);
+          }
+
+          await supabase.from('workouts').upsert({
+            id: w.id,
+            user_id: w.userId,
+            user_name: w.userName,
+            user_avatar: w.userAvatar,
+            sport_type: w.sportType,
+            sport_title: w.sportTitle,
+            duration_minutes: w.durationMinutes || 0,
+            photo_url: photoUrl,
+            selfie_url: selfieUrl || null,
+            notes: w.notes || null,
+            tagged_user_ids: w.taggedUserIds || [],
+            tagged_user_names: w.taggedUserNames || [],
+            created_at: w.createdAt,
+          });
+        } catch {
+          remaining.push(w);
+        }
+      }
+
+      if (remaining.length === 0) {
+        localStorage.removeItem(OFFLINE_QUEUE_KEY);
+      } else {
+        localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remaining));
+      }
+    } catch {
+      // Ignore queue processing errors
+    }
   }
 
   // Users
@@ -455,9 +531,12 @@ class Store {
             }
           }
         } catch (err) {
-          console.error('Błąd zapisu treningu do Supabase:', err);
+          console.error('Błąd zapisu treningu do Supabase (kolejkowanie offline):', err);
+          this.queueOfflineWorkout(newWorkout);
         }
       })();
+    } else if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      this.queueOfflineWorkout(newWorkout);
     }
 
     return newWorkout;

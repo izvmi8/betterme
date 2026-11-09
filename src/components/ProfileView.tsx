@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { User, Workout } from '../types';
-import { Dumbbell, Flame, Award, Calendar, ArrowLeft, Pencil, LogOut, X } from 'lucide-react';
+import { Dumbbell, Flame, Award, Calendar, ArrowLeft, Pencil, LogOut, X, Share2, Bell, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { EditProfileModal } from './EditProfileModal';
+import { requestNotificationPermission, isNotificationGranted, isNotificationSupported } from '../services/notifications';
 
 interface ProfileViewProps {
   user: User;
@@ -27,11 +28,27 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 }) => {
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [copiedInvite, setCopiedInvite] = useState<boolean>(false);
+  const [hasNotifs, setHasNotifs] = useState<boolean>(() => isNotificationGranted());
 
   // Notify parent modal state to lock screen carousel navigation
   useEffect(() => {
     onModalToggle?.(!!selectedWorkout || isEditModalOpen);
   }, [selectedWorkout, isEditModalOpen, onModalToggle]);
+
+  const handleCopyInvite = () => {
+    if (typeof window === 'undefined') return;
+    const inviteUrl = `${window.location.origin}?join=beme2026`;
+    navigator.clipboard.writeText(inviteUrl).then(() => {
+      setCopiedInvite(true);
+      setTimeout(() => setCopiedInvite(false), 2500);
+    });
+  };
+
+  const handleEnableNotifications = async () => {
+    const granted = await requestNotificationPermission();
+    setHasNotifs(granted);
+  };
 
   const userWorkouts = workouts.filter((w) => w.userId === user.id);
 
@@ -95,23 +112,55 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
           {/* Profile Actions - powiększone dla wygody dotyku */}
           {isCurrentLoggedUser && (
-            <div className="mt-5 flex items-center justify-center gap-3 w-full">
-              <button
-                onClick={() => setIsEditModalOpen(true)}
-                className="flex-1 flex items-center justify-center gap-2 text-sm bg-[#6ea900] text-black font-black py-3 px-4 rounded-2xl shadow-lg shadow-[#6ea900]/25 active:scale-95 transition-all"
-              >
-                <Pencil size={15} strokeWidth={3} />
-                <span>Edytuj profil</span>
-              </button>
+            <>
+              <div className="mt-5 flex items-center justify-center gap-3 w-full">
+                <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="flex-1 flex items-center justify-center gap-2 text-sm bg-[#6ea900] text-black font-black py-3 px-4 rounded-2xl shadow-lg shadow-[#6ea900]/25 active:scale-95 transition-all"
+                >
+                  <Pencil size={15} strokeWidth={3} />
+                  <span>Edytuj profil</span>
+                </button>
 
-              <button
-                onClick={onOpenSwitchUser}
-                className="flex-1 flex items-center justify-center gap-2 text-sm text-zinc-300 hover:text-white py-3 px-4 rounded-2xl bg-[#10222b] border border-[#0d2b52] hover:border-[#6ea900] active:scale-95 transition-all"
-              >
-                <LogOut size={15} />
-                <span>Przełącz profil</span>
-              </button>
-            </div>
+                <button
+                  onClick={onOpenSwitchUser}
+                  className="flex-1 flex items-center justify-center gap-2 text-sm text-zinc-300 hover:text-white py-3 px-4 rounded-2xl bg-[#10222b] border border-[#0d2b52] hover:border-[#6ea900] active:scale-95 transition-all"
+                >
+                  <LogOut size={15} />
+                  <span>Przełącz profil</span>
+                </button>
+              </div>
+
+              {/* Invite Link & Push Notifications Actions */}
+              <div className="mt-3 flex flex-col gap-2 w-full">
+                <button
+                  onClick={handleCopyInvite}
+                  className="w-full py-3 px-4 rounded-2xl bg-[#10222b] border border-[#0d2b52] hover:border-[#6ea900] text-xs font-bold text-white flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md"
+                >
+                  {copiedInvite ? (
+                    <>
+                      <Check size={15} className="text-[#6ea900]" strokeWidth={3} />
+                      <span className="text-[#9be819]">Skopiowano link do schowka! Wklej na grupę ✓</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 size={15} className="text-[#6ea900]" />
+                      <span>Kopiuj link z zaproszeniem dla kumpli 🔗</span>
+                    </>
+                  )}
+                </button>
+
+                {isNotificationSupported() && !hasNotifs && (
+                  <button
+                    onClick={handleEnableNotifications}
+                    className="w-full py-2.5 px-4 rounded-2xl bg-[#10222b] border border-[#a10b2b]/50 text-xs font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-2 active:scale-95 transition-all"
+                  >
+                    <Bell size={14} className="text-[#ff4d6d]" />
+                    <span>Włącz powiadomienia w telefonie 🔔</span>
+                  </button>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>

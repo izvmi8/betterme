@@ -8,6 +8,8 @@ import { ProfileView } from './components/ProfileView';
 import { AddWorkoutModal } from './components/AddWorkoutModal';
 import { NotificationToast } from './components/NotificationToast';
 import { LoginModal } from './components/LoginModal';
+import { PrivacyGate } from './components/PrivacyGate';
+import { InstallPromptBanner } from './components/InstallPromptBanner';
 import { Plus } from 'lucide-react';
 
 export type ScreenTab = 'autor' | 'tablica' | 'ranking' | 'moj_profil';
@@ -37,6 +39,22 @@ export const App: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [pushNotification, setPushNotification] = useState<PushNotification | null>(null);
   const [openChildModals, setOpenChildModals] = useState<Set<string>>(new Set());
+  const [isOnline, setIsOnline] = useState<boolean>(
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const handleChildModalToggle = (key: string, isOpen: boolean) => {
     setOpenChildModals((prev) => {
@@ -162,16 +180,27 @@ export const App: React.FC = () => {
   ).length;
 
   return (
-    <div
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      className="h-[100dvh] w-full overflow-hidden bg-black text-white relative select-none"
-    >
-      {/* Native Push Notification Toast Banner */}
-      <NotificationToast
-        notification={pushNotification}
-        onClose={() => setPushNotification(null)}
-      />
+    <PrivacyGate>
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="h-[100dvh] w-full overflow-hidden bg-black text-white relative select-none"
+      >
+        {/* Messenger & PWA Install Helper Banner */}
+        <InstallPromptBanner />
+
+        {/* Offline Indicator Pill */}
+        {!isOnline && (
+          <div className="fixed top-16 inset-x-4 z-40 max-w-xs mx-auto bg-[#a10b2b] text-white text-[11px] font-bold py-1 px-3 rounded-full text-center shadow-lg border border-white/20 animate-pulse">
+            📴 Brak sieci • Zapis lokalny w telefonie
+          </div>
+        )}
+
+        {/* Native Push Notification Toast Banner */}
+        <NotificationToast
+          notification={pushNotification}
+          onClose={() => setPushNotification(null)}
+        />
 
       {/* Floating Minimal Header: Logo lewo, licznik x/3 środek, awatar prawo */}
       <Header
@@ -259,16 +288,17 @@ export const App: React.FC = () => {
         onSaveWorkout={handleSaveWorkout}
       />
 
-      {/* Profile Switcher / Login Modal */}
-      <LoginModal
-        users={users}
-        currentUserId={currentUser.id}
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onSelectUser={handleSwitchUser}
-        onCreateUser={handleCreateUser}
-      />
-    </div>
+        {/* Profile Switcher / Login Modal */}
+        <LoginModal
+          users={users}
+          currentUserId={currentUser.id}
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          onSelectUser={handleSwitchUser}
+          onCreateUser={handleCreateUser}
+        />
+      </div>
+    </PrivacyGate>
   );
 };
 

@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { compressImage } from '../utils/imageCompressor';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -66,6 +67,14 @@ export async function uploadMedia(
       }
     } else {
       fileBody = dataOrUrl;
+    }
+
+    if (contentType.startsWith('image/')) {
+      try {
+        fileBody = await compressImage(fileBody, 1440, 0.82);
+      } catch (e) {
+        // Continue with original body if compression fails
+      }
     }
 
     const uniquePath = `uploads/${Date.now()}_${fileName}`;
