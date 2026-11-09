@@ -380,9 +380,7 @@ export const AddWorkoutModal: React.FC<AddWorkoutModalProps> = ({
               </span>
             </button>
 
-            {/* Subtelne winiety w kadrze */}
-            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/75 to-transparent pointer-events-none" />
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/75 to-transparent pointer-events-none" />
+            {/* Czysty kadr bez gradientów */}
 
             {/* Ładowanie */}
             {isLoading && (
@@ -518,14 +516,14 @@ export const AddWorkoutModal: React.FC<AddWorkoutModalProps> = ({
             </div>
           </div>
 
-          {/* Dolny Panel: POWIĘKSZONE KAFELKI, OZNACZANIE I OKNO OPISU */}
-          <div className="relative z-20 p-4 pb-8 space-y-3 bg-gradient-to-t from-black via-black/95 to-transparent max-h-[75vh] overflow-y-auto no-scrollbar">
+          {/* Dolny Panel: POWIĘKSZONE KAFELKI, OZNACZANIE I OKNO OPISU (Płaski solidny ciemny panel) */}
+          <div className="relative z-20 p-5 pb-8 space-y-4 bg-[#10222b] border-t border-[#0d2b52] max-h-[75vh] overflow-y-auto no-scrollbar shadow-2xl">
             {/* POWIĘKSZONE KAFELKI SPORTU */}
             <div>
-              <span className="block text-[11px] font-bold text-zinc-300 uppercase tracking-wider mb-1.5">
+              <span className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2">
                 Wybierz sport:
               </span>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2.5">
                 {SPORTS.map((sport) => {
                   const isSelected = selectedSport === sport.type;
                   return (
@@ -533,14 +531,14 @@ export const AddWorkoutModal: React.FC<AddWorkoutModalProps> = ({
                       key={sport.type}
                       type="button"
                       onClick={() => setSelectedSport(sport.type)}
-                      className={`py-3 px-2 rounded-2xl font-bold flex flex-col items-center gap-1 transition-all active:scale-95 ${
+                      className={`py-3.5 px-3 rounded-2xl font-bold flex flex-col items-center gap-1.5 transition-all active:scale-95 ${
                         isSelected
                           ? 'bg-[#6ea900] text-black shadow-lg shadow-[#6ea900]/40 scale-[1.02] border-2 border-white'
                           : 'bg-[#152b36] border border-[#0d2b52] text-white hover:border-[#6ea900]/50'
                       }`}
                     >
-                      <span className="text-2xl">{sport.icon}</span>
-                      <span className="text-xs font-extrabold">{sport.label}</span>
+                      <span className="text-3xl">{sport.icon}</span>
+                      <span className="text-xs font-black">{sport.label}</span>
                     </button>
                   );
                 })}
@@ -550,12 +548,12 @@ export const AddWorkoutModal: React.FC<AddWorkoutModalProps> = ({
             {/* Feature 5: OZNACZANIE KUMPLA Z SIŁKI 👥 */}
             {users.filter((u) => u.id !== currentUser.id).length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-bold text-zinc-300 uppercase tracking-wider">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
                     Trenowaliście razem? Oznacz kumpla 👥
                   </span>
                   {selectedBuddyIds.length > 0 && (
-                    <span className="text-[10px] text-[#6ea900] font-bold bg-[#6ea900]/15 px-2 py-0.5 rounded-full border border-[#6ea900]/30">
+                    <span className="text-xs text-[#6ea900] font-bold bg-[#6ea900]/15 px-2.5 py-0.5 rounded-full border border-[#6ea900]/30">
                       Oznaczono ({selectedBuddyIds.length})
                     </span>
                   )}
@@ -574,16 +572,16 @@ export const AddWorkoutModal: React.FC<AddWorkoutModalProps> = ({
                               isSelected ? prev.filter((id) => id !== buddy.id) : [...prev, buddy.id]
                             );
                           }}
-                          className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold transition-all shrink-0 active:scale-95 ${
+                          className={`flex items-center gap-2 px-3.5 py-2 rounded-full border text-xs font-bold transition-all shrink-0 active:scale-95 ${
                             isSelected
                               ? 'bg-[#6ea900]/25 border-[#6ea900] text-[#9be819] shadow-md shadow-[#6ea900]/25'
-                              : 'bg-[#10222b] border-[#0d2b52] text-zinc-300 hover:border-zinc-500'
+                              : 'bg-[#152b36] border-[#0d2b52] text-zinc-300 hover:border-zinc-400'
                           }`}
                         >
                           <img
                             src={buddy.avatar}
                             alt={buddy.name}
-                            className="w-5 h-5 rounded-full object-cover"
+                            className="w-6 h-6 rounded-full object-cover"
                           />
                           <span>{buddy.name}</span>
                           {isSelected && <span className="text-xs font-black">✓</span>}
@@ -592,7 +590,7 @@ export const AddWorkoutModal: React.FC<AddWorkoutModalProps> = ({
                     })}
                 </div>
                 {selectedBuddyIds.length > 0 && (
-                  <p className="text-[10px] text-[#9be819] font-medium mt-1">
+                  <p className="text-xs text-[#9be819] font-medium mt-1">
                     💡 Trening zaliczy się automatycznie do passy oznaczonego kumpla!
                   </p>
                 )}
@@ -601,7 +599,7 @@ export const AddWorkoutModal: React.FC<AddWorkoutModalProps> = ({
 
             {/* POWIĘKSZONE OKNO DO OPISU OPCJONALNEGO (TEXTAREA) */}
             <div>
-              <span className="block text-[11px] font-bold text-zinc-300 uppercase tracking-wider mb-1.5">
+              <span className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2">
                 Opis (opcjonalny):
               </span>
               <textarea
@@ -609,20 +607,20 @@ export const AddWorkoutModal: React.FC<AddWorkoutModalProps> = ({
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Napisz parę słów: jak poszło, co było robione..."
                 rows={2}
-                className="w-full bg-[#10222b]/90 backdrop-blur-md border border-[#0d2b52] rounded-2xl p-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#6ea900] resize-none shadow-inner"
+                className="w-full bg-[#152b36] border border-[#0d2b52] rounded-2xl p-3.5 text-base text-white placeholder-zinc-500 focus:outline-none focus:border-[#6ea900] resize-none shadow-inner"
               />
             </div>
 
-            {/* PRZYCISK PUBLIKACJI */}
+            {/* PRZYCISK PUBLIKACJI - płaski, solidny, wyrazisty pod kciuk */}
             <button
               onClick={handlePublish}
               disabled={isPublishing}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#a10b2b] to-[#6ea900] text-white font-black text-base hover:brightness-110 active:scale-[0.98] transition-all shadow-2xl shadow-[#6ea900]/40 flex items-center justify-center gap-2 border border-white/20 disabled:opacity-50"
+              className="w-full py-4 rounded-2xl bg-[#6ea900] text-black font-black text-base hover:bg-[#84ca00] active:scale-[0.98] transition-all shadow-2xl shadow-[#6ea900]/40 flex items-center justify-center gap-2 border-2 border-black disabled:opacity-50"
             >
               {isPublishing ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Stemplowanie zdjęcia BeReal...
+                  <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  Stemplowanie zdjęcia BeMe...
                 </>
               ) : (
                 <>

@@ -34,7 +34,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
               className="w-10 h-10 rounded-xl object-cover border border-[#0d2b52]"
             />
           ) : (
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#a10b2b] to-[#6ea900] text-white flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[#6ea900] text-black flex items-center justify-center font-bold">
               <Bell size={18} />
             </div>
           )}

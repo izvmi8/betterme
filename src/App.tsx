@@ -239,15 +239,15 @@ export const App: React.FC = () => {
         </div>
       </main>
 
-      {/* Plusik dodania foty: na środku ekranu na samym dole z lekkim marginesem */}
+      {/* Plusik dodania foty: powiększony, solidny płaski kolor pod kciuk */}
       <button
         onClick={() => setIsAddModalOpen(true)}
         title="Dodaj trening"
-        className={`fixed bottom-5 left-1/2 -translate-x-1/2 z-30 w-12 h-12 rounded-full bg-gradient-to-tr from-[#a10b2b] to-[#6ea900] text-white flex items-center justify-center shadow-2xl shadow-[#6ea900]/40 active:scale-90 transition-all border border-white/20 ${
+        className={`fixed bottom-5 left-1/2 -translate-x-1/2 z-30 w-16 h-16 rounded-full bg-[#6ea900] text-black flex items-center justify-center shadow-2xl shadow-[#6ea900]/40 active:scale-90 transition-all border-2 border-black ${
           isAnyModalOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100 scale-100'
         }`}
       >
-        <Plus size={24} strokeWidth={3} />
+        <Plus size={32} strokeWidth={3.5} />
       </button>
 
       {/* Add Workout Modal */}

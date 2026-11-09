@@ -33,12 +33,10 @@ export const Navigation: React.FC<NavigationProps> = ({
         {/* Center Add Button */}
         <button
           onClick={onOpenAddModal}
-          className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#a10b2b] to-[#6ea900] p-0.5 shadow-lg shadow-[#6ea900]/30 active:scale-90 transition-transform flex items-center justify-center"
+          className="w-12 h-12 rounded-full bg-[#6ea900] text-black shadow-lg shadow-[#6ea900]/30 active:scale-90 transition-transform flex items-center justify-center border-2 border-black"
           title="Dodaj trening"
         >
-          <div className="w-full h-full rounded-full bg-black/70 flex items-center justify-center hover:bg-transparent transition-colors">
-            <Plus size={22} className="text-white" strokeWidth={3} />
-          </div>
+          <Plus size={24} strokeWidth={3} />
         </button>
 
         {/* Leaderboard Tab */}

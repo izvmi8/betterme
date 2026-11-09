@@ -121,31 +121,31 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
   return (
     <div className="max-w-md mx-auto px-4 py-4 space-y-6 pb-24 select-none">
-      {/* Feature 9: Spotify-Wrapped style banner button */}
+      {/* Feature 9: Spotify-Wrapped style banner button (bez gradientów, powiększony) */}
       <button
         onClick={() => {
           setIsWrappedOpen(true);
           setWrappedSlide(0);
         }}
-        className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-[#152b36] via-[#10222b] to-[#152b36] border border-[#6ea900]/40 flex items-center justify-between shadow-xl shadow-[#0d2b52]/30 active:scale-95 transition-all group"
+        className="w-full p-4 rounded-2xl bg-[#152b36] border-2 border-[#6ea900]/50 flex items-center justify-between shadow-xl shadow-[#0d2b52]/30 active:scale-95 transition-all group"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#6ea900] to-[#0d2b52] flex items-center justify-center text-white text-lg shadow-md group-hover:rotate-6 transition-transform">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-[#6ea900] flex items-center justify-center text-black text-xl shadow-md group-hover:scale-105 transition-transform shrink-0">
             🎧
           </div>
           <div className="text-left">
-            <div className="text-xs font-black text-white flex items-center gap-1.5">
+            <div className="text-sm font-black text-white flex items-center gap-2">
               Miesięczne Podsumowanie Ekipy
-              <span className="text-[10px] bg-[#6ea900] text-black font-extrabold px-1.5 py-0.2 rounded-full">
+              <span className="text-[10px] bg-[#6ea900] text-black font-extrabold px-2 py-0.5 rounded-full">
                 WRAPPED
               </span>
             </div>
-            <div className="text-[11px] text-zinc-400">
+            <div className="text-xs text-zinc-300">
               Sprawdź kto jest Dzikiem, a kto Królem Kanapy 🛋️
             </div>
           </div>
         </div>
-        <ChevronRight size={18} className="text-[#6ea900]" />
+        <ChevronRight size={20} className="text-[#6ea900]" />
       </button>
 
       {/* Switcher Tab */}
@@ -519,22 +519,22 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                 </div>
               )}
 
-              {/* CTA: Kopiuj na Messengera */}
+              {/* CTA: Kopiuj na Messengera (bez gradientu, duży przycisk) */}
               <button
                 onClick={handleCopyShameReport}
-                className={`w-full py-3.5 px-4 rounded-2xl font-black text-xs flex items-center justify-center gap-2 transition-all shadow-xl active:scale-95 ${
+                className={`w-full py-4 px-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-xl active:scale-95 ${
                   copiedShame
                     ? 'bg-[#6ea900] text-black shadow-[#6ea900]/40'
-                    : 'bg-gradient-to-r from-[#a10b2b] to-[#6ea900] text-white shadow-[#6ea900]/30 border border-white/20'
+                    : 'bg-[#6ea900] text-black shadow-[#6ea900]/30 hover:bg-[#84ca00]'
                 }`}
               >
                 {copiedShame ? (
                   <>
-                    <Check size={16} strokeWidth={3} /> Skopiowano do schowka! Wklej na grupę ✓
+                    <Check size={18} strokeWidth={3} /> Skopiowano do schowka! Wklej na grupę ✓
                   </>
                 ) : (
                   <>
-                    <Copy size={16} /> Kopiuj meldunek na Messengera 📋
+                    <Copy size={18} /> Kopiuj meldunek na Messengera 📋
                   </>
                 )}
               </button>
